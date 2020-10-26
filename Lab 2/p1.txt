@@ -1,0 +1,12 @@
+.. ----------------------------------- ..
+.. p1. compute de max/min of 3 numbers ..
+.. ----------------------------------- ..
+
+num x. listen (x).
+num y. listen (y).
+num z. listen (z).
+
+num maxim = maybe x > y then x whatever y.
+maxim = maybe maxim > z then maxim whatever z.
+
+speak (maxim).

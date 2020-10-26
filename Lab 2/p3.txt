@@ -1,0 +1,12 @@
+.. -------------------------------- ..
+.. p3. compute the sum of n numbers ..
+.. -------------------------------- ..
+
+num n. listen (n).
+num s = 0.
+
+seq i from 1 to n with i=i+1:
+  s = s + i.
+end.
+
+speak (s).

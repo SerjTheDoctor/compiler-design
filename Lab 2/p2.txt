@@ -1,0 +1,23 @@
+.. ------------------------------- ..
+.. p2. verify if a number is prime ..
+.. ------------------------------- ..
+
+num nr. listen (nr).
+bool isPrime = yea.
+
+cond nr < 2:
+  isPrime = nah.
+
+orcond nr > 2:
+  num half = nr / 2.
+
+  seq i from 1 to half with i=i+1:
+    cond nr % i == 0:
+      isPrime = nah.
+
+      kick. .. breaks the sequence
+    end.
+  end.
+end.
+
+speak (isPrime).

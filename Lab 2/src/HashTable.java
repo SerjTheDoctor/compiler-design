@@ -14,27 +14,31 @@ public class HashTable {
         }
     }
 
-    public int add(String x) {
-        int pos = this.index(x);
-        if (pos > -1) {
+    public Pair<Integer, Integer> add(String x) {
+        Pair<Integer, Integer> pos = this.index(x);
+
+        if (pos.getFirst() > -1) {
             return pos;
         }
 
-        pos = hash(x);
+        int posInHash = hash(x);
 
-        LinkedList<String> list = items.get(pos);
+        LinkedList<String> list = items.get(posInHash);
         list.add(x);
 
-        return pos;
+        int posInLinkedList = list.size()-1;
+
+        return new Pair<>(posInHash, posInLinkedList);
     }
 
-    public int index(String x) {
+    public Pair<Integer, Integer> index(String x) {
         for (int i = 0; i < this.size; ++i) {
-            if (this.items.get(i).contains(x)) {
-                return i;
+            int posInLinkedList = this.items.get(i).indexOf(x);
+            if (posInLinkedList != -1) {
+                return new Pair<>(i, posInLinkedList);
             }
         }
-        return -1;
+        return new Pair<>(-1, -1);
     }
 
     private int hash(String x) {
@@ -43,5 +47,9 @@ public class HashTable {
             sum += x.charAt(i);
         }
         return sum % size;
+    }
+
+    public List<LinkedList<String>> getItems() {
+        return items;
     }
 }

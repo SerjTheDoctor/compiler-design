@@ -1,0 +1,6 @@
+.. --------------------- ..
+.. p1err. lexical errors ..
+.. --------------------- ..
+
+num ± = 2. .. invalid character (±)
+sent w = "this is a proposition. .. expected end of sentence

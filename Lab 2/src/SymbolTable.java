@@ -6,11 +6,23 @@ public class SymbolTable {
         this.hashTable = new HashTable(SIZE);
     }
 
-    public int insert(String x) {
+    public Pair<Integer, Integer> insert(String x) {
         return this.hashTable.add(x);
     }
 
-    public int search(String x) {
+    public Pair<Integer, Integer> search(String x) {
         return this.hashTable.index(x);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder("\n-- SymbolTable --\n");
+
+        for (int i = 0; i < hashTable.getItems().size(); i++) {
+            str.append(i).append(": ").append(hashTable.getItems().get(i)).append('\n');
+        }
+
+        str.append("------------\n");
+        return str.toString();
     }
 }
