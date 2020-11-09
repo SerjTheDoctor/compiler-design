@@ -1,4 +1,3 @@
-..
 + - * / % = ! < <= == != >= >
-. : ( ) [ ]
+. : ( ) [ ] " " ' '
 num sent bool list cond orcond end seq from to with kick listen speak maybe then whatever

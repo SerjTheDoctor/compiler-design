@@ -16,7 +16,7 @@ public class SymbolTable {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder("\n-- SymbolTable --\n");
+        StringBuilder str = new StringBuilder("-- SymbolTable --\n");
 
         for (int i = 0; i < hashTable.getItems().size(); i++) {
             str.append(i).append(": ").append(hashTable.getItems().get(i)).append('\n');

@@ -1,29 +1,23 @@
 import java.io.*;
-import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Scanner {
-    private static final String IDENTIFIER_TEST = "^[a-zA-Z_][a-zA-Z_0-9]*$";
-    private static final String CONSTANT_TEST = "^(0|[+-]?[1-9][0-9]*|yea|nah|\".*\"|'.*')$";
-    private static final String SPACE_SEPARATOR = " ";
+public class Analyzer {
+    private final SymbolTable st;
+    private final ProgramInternalForm pif;
+    private List<String> operators;
+    private List<String> separators;
+    private List<String> reservedWords;
 
-    private SymbolTable st;
-    private ProgramInternalForm pif;
-    private String commentSymbol;
-    private List<String> operators = new ArrayList<>();
-    private List<String> separators = new ArrayList<>();
-    private List<String> reservedWords = new ArrayList<>();
-
-    public Scanner(String tokensFileName) {
+    public Analyzer(String tokensFileName) {
         st = new SymbolTable();
         pif = new ProgramInternalForm();
 
         try {
             loadTokens(tokensFileName);
 
-            System.out.println("Operators: " + operators.toString());
+            System.out.println("\nOperators: " + operators.toString());
             System.out.println("Separators: " + separators.toString());
             System.out.println("Reserved words: " + reservedWords.toString());
         } catch (IOException e) {
@@ -35,7 +29,6 @@ public class Scanner {
         File file = new File(tokensFileName);
         BufferedReader br = new BufferedReader(new FileReader(file));
 
-        commentSymbol = br.readLine().strip();
         operators = Arrays.asList(br.readLine().strip().split(" "));
         separators = Arrays.asList(br.readLine().strip().split(" "));
         reservedWords = Arrays.asList(br.readLine().strip().split(" "));
@@ -49,7 +42,15 @@ public class Scanner {
         String line = br.readLine();
         while (line != null) {
 //            System.out.println("\nOn line: '" + line + "'");
-            List<String> tokens = detect(line);
+
+            List<String> tokens = null;
+            try {
+                tokens = detect(line, i);
+            } catch (LexicalException e) {
+                System.out.println(e.getMessage());
+                br.close();
+                return;
+            }
 //            System.out.println("Detected: " + tokens);
 
             for (String token : tokens) {
@@ -84,26 +85,10 @@ public class Scanner {
         bw.close();
     }
 
-    private void printTokenType(String token) {
-        if (isOperator(token)) {
-            System.out.println(token + " @ Operator");
-        } else if (isSeparator(token)) {
-            System.out.println(token + " @ Separator");
-        } else if (isReservedWord(token)) {
-            System.out.println(token + " @ ReservedWord");
-        } else if (isConstant(token)) {
-            System.out.println(token + " @ Constant");
-        } else if (isIdentifier(token)) {
-            System.out.println(token + " @ Identifier");
-        } else {
-            System.out.println(token + " @ UnknownType");
-        }
-    }
-
-    private List<String> detect(String line) {
+    private List<String> detect(String line, Integer index) throws LexicalException {
         List<String> tokens = new ArrayList<>();
 
-        int commentIndex = line.indexOf(commentSymbol);
+        int commentIndex = line.indexOf(Language.COMMENT);
         if (commentIndex != -1) {
             line = line.substring(0, commentIndex);
         }
@@ -112,26 +97,33 @@ public class Scanner {
         while (end < line.length()) {
             String endCharacter = line.substring(end, end + 1);
 
-            while (!line.startsWith(SPACE_SEPARATOR, end) && !isSeparator(endCharacter) && !isOperator(endCharacter)) {
+            while (!line.startsWith(Language.SPACE, end) && !isSeparator(endCharacter) && !isOperator(endCharacter)) {
                 end++;
                 endCharacter = line.substring(end, end + 1);
             }
 
             String word = line.substring(start, end);
-//            System.out.println("Substring: '" + word + "'");
 
             if (isToken(word)) {
-//                System.out.println("Word '" + word + "' is token");
+                // Add token, go to end of token
                 tokens.add(word);
                 start = end;
+            } else if (!word.isBlank()) {
+                // Non empty word is not a token => lexical error !
+                throw new LexicalException("LexicalError (" + index + ", " + start + "): " + word);
             }
             if (isSeparator(endCharacter)) {
-//                System.out.println("Word '" + endCharacter + "' is separator");
-               tokens.add(endCharacter);
+                // Separators are marked as tokens too
+                // so we add them
+                if (endCharacter.equals('\"')) {
+
+                } else {
+                    tokens.add(endCharacter);
+                }
             } else if (isOperator(endCharacter)) {
                 // If the current operator is followed by an '=', it means it's a composed operator
                 // ex: <=, ==, !=, >=
-                if (end + 1 < line.length() && line.charAt(end+1) == '=') {
+                if (end + 1 < line.length() && line.startsWith(Language.EQUAL, end+1)) {
                     tokens.add(line.substring(end, end + 2));
                     start++;
                     end++;
@@ -165,10 +157,26 @@ public class Scanner {
     }
 
     private boolean isIdentifier(String str) {
-        return str.matches(IDENTIFIER_TEST);
+        return str.matches(Language.IDENTIFIER_TEST);
     }
 
     private boolean isConstant(String str) {
-        return str.matches(CONSTANT_TEST);
+        return str.matches(Language.CONSTANT_TEST);
+    }
+
+    private void printTokenType(String token) {
+        if (isOperator(token)) {
+            System.out.println(token + " @ Operator");
+        } else if (isSeparator(token)) {
+            System.out.println(token + " @ Separator");
+        } else if (isReservedWord(token)) {
+            System.out.println(token + " @ ReservedWord");
+        } else if (isConstant(token)) {
+            System.out.println(token + " @ Constant");
+        } else if (isIdentifier(token)) {
+            System.out.println(token + " @ Identifier");
+        } else {
+            System.out.println(token + " @ UnknownType");
+        }
     }
 }

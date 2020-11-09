@@ -5,6 +5,8 @@
 num n. listen (n).
 num s = 0.
 
+sent str = "abc def l;23.;4"
+
 seq i from 1 to n with i=i+1:
   s = s + i.
 end.

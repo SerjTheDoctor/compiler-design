@@ -15,10 +15,10 @@ public class ProgramInternalForm {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder("\n-- ProgramInternalForm --\n");
+        StringBuilder str = new StringBuilder("-- ProgramInternalForm --\n");
 
         for (Pair<String, Pair<Integer, Integer>> element : form) {
-            str.append(element.getFirst()).append(": ").append(element.getSecond()).append('\n');
+            str.append(String.format("%-10s", element.getFirst())).append(element.getSecond()).append('\n');
         }
 
         str.append("--------------\n");
