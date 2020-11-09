@@ -1,3 +1,7 @@
+package program;
+
+import ds.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +19,7 @@ public class ProgramInternalForm {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder("-- ProgramInternalForm --\n");
+        StringBuilder str = new StringBuilder("-- program.ProgramInternalForm --\n");
 
         for (Pair<String, Pair<Integer, Integer>> element : form) {
             str.append(String.format("%-10s", element.getFirst())).append(element.getSecond()).append('\n');
