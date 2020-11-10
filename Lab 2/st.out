@@ -1,13 +1,12 @@
-
--- SymbolTable --
-0: [n]
-1: []
-2: []
+-- program.SymbolTable --
+0: [x, maxim, 2]
+1: [y, nah, half]
+2: [z]
 3: []
-4: []
-5: [s, i]
+4: [nr]
+5: [i]
 6: []
 7: []
 8: [0]
-9: [1]
+9: [isPrime, yea, 1]
 ------------
