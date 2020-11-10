@@ -1,3 +1,8 @@
+package program;
+
+import ds.HashTable;
+import ds.Pair;
+
 public class SymbolTable {
     private final int SIZE = 10;
     private HashTable hashTable;
@@ -16,7 +21,7 @@ public class SymbolTable {
 
     @Override
     public String toString() {
-        StringBuilder str = new StringBuilder("-- SymbolTable --\n");
+        StringBuilder str = new StringBuilder("-- program.SymbolTable --\n");
 
         for (int i = 0; i < hashTable.getItems().size(); i++) {
             str.append(i).append(": ").append(hashTable.getItems().get(i)).append('\n');

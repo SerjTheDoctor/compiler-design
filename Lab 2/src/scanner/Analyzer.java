@@ -1,11 +1,20 @@
+package scanner;
+
+import ds.Pair;
+import fa.FiniteAutomata;
+import program.Language;
+import program.ProgramInternalForm;
+import program.SymbolTable;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Analyzer {
     private final SymbolTable st;
     private final ProgramInternalForm pif;
+    private final FiniteAutomata identifierFA;
+    private final FiniteAutomata integerConstantFA;
+
     private List<String> operators;
     private List<String> separators;
     private List<String> reservedWords;
@@ -13,6 +22,11 @@ public class Analyzer {
     public Analyzer(String tokensFileName) {
         st = new SymbolTable();
         pif = new ProgramInternalForm();
+        identifierFA = new FiniteAutomata();
+        integerConstantFA = new FiniteAutomata();
+
+        identifierFA.initIdentifierFA();
+        integerConstantFA.initIntegerConstantFA();
 
         try {
             loadTokens(tokensFileName);
@@ -32,6 +46,8 @@ public class Analyzer {
         operators = Arrays.asList(br.readLine().strip().split(" "));
         separators = Arrays.asList(br.readLine().strip().split(" "));
         reservedWords = Arrays.asList(br.readLine().strip().split(" "));
+
+        br.close();
     }
 
     public void scan(String inputFileName, String pifFileName, String stFileName) throws IOException {
@@ -41,7 +57,7 @@ public class Analyzer {
         int i = 0;
         String line = br.readLine();
         while (line != null) {
-//            System.out.println("\nOn line: '" + line + "'");
+            System.out.println("\nOn line: '" + line + "'");
 
             List<String> tokens = null;
             try {
@@ -51,7 +67,7 @@ public class Analyzer {
                 br.close();
                 return;
             }
-//            System.out.println("Detected: " + tokens);
+            System.out.println("Detected: " + tokens);
 
             for (String token : tokens) {
 //                printTokenType(token);
@@ -112,11 +128,17 @@ public class Analyzer {
                 // Non empty word is not a token => lexical error !
                 throw new LexicalException("LexicalError (" + index + ", " + start + "): " + word);
             }
+            // Separators are marked as tokens too
+            // so we add them
             if (isSeparator(endCharacter)) {
-                // Separators are marked as tokens too
-                // so we add them
-                if (endCharacter.equals('\"')) {
-
+                // It got to the beginning of a sentence
+                if (endCharacter.equals("\"")) {
+                    int startSentence = end;
+                    do {
+                        end++;
+                        endCharacter = line.substring(end, end + 1);
+                    } while (!endCharacter.equals("\""));
+                    tokens.add(line.substring(startSentence, end + 1));
                 } else {
                     tokens.add(endCharacter);
                 }
@@ -157,11 +179,17 @@ public class Analyzer {
     }
 
     private boolean isIdentifier(String str) {
-        return str.matches(Language.IDENTIFIER_TEST);
+        boolean accepted = identifierFA.verifySequence(str);
+        System.out.println("Sequence '" + str + "' is " + (accepted ? "" : "NOT ") + "accepted as an identifier");
+        return accepted;
+//        return str.matches(Language.IDENTIFIER_TEST);
     }
 
     private boolean isConstant(String str) {
-        return str.matches(Language.CONSTANT_TEST);
+        boolean accepted = integerConstantFA.verifySequence(str) || str.matches(Language.NON_INTEGER_CONSTANT_TEST);
+        System.out.println("Sequence '" + str + "' is " + (accepted ? "" : "NOT ") + "accepted as a constant");
+        return accepted;
+//        return str.matches(Language.CONSTANT_TEST);
     }
 
     private void printTokenType(String token) {
